@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Depósito - PIX Dobrado</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        .gradient-bg {
+            background: linear-gradient(135deg, #000000 0%, #1a1a1a 100%);
+        }
+        .hover-scale {
+            transition: transform 0.3s ease;
+        }
+        .hover-scale:hover {
+            transform: scale(1.02);
+        }
+        .animate-fade-in {
+            animation: fadeIn 0.8s ease-out;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .input-focus {
+            transition: all 0.3s ease;
+        }
+        .input-focus:focus {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+        }
+        .method-card {
+            transition: all 0.3s ease;
+        }
+        .method-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 24px rgba(0,0,0,0.1);
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- Navigation -->
+    <nav class="bg-white shadow-lg">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                <div class="flex-shrink-0 flex items-center">
+                    <a href="index.html" class="text-2xl font-extrabold bg-clip-text text-transparent bg-gradient-to-r from-black to-gray-600">PIX Dobrado</a>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <span id="userEmail" class="text-sm text-gray-600"></span>
+                    <a href="wallet.html" class="text-gray-900 hover:text-gray-600 px-3 py-2 rounded-md text-sm font-medium hover-scale">Carteira</a>
+                    <button onclick="logout()" class="text-gray-900 hover:text-gray-600 px-3 py-2 rounded-md text-sm font-medium hover-scale">Sair</button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Deposit Section -->
+    <div class="min-h-screen bg-gray-50 py-12">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-12 animate-fade-in">
+                <h2 class="text-3xl font-extrabold bg-clip-text text-transparent bg-gradient-to-r from-black to-gray-600">
+                    Escolha como depositar
+                </h2>
+                <p class="mt-2 text-gray-600">
+                    Selecione o método de depósito de sua preferência
+                </p>
+            </div>
+
+            <div class="grid grid-cols-1 gap-8 md:grid-cols-2 max-w-4xl mx-auto">
+                <!-- Manual Deposit -->
+                <div class="method-card bg-white rounded-lg shadow-lg p-8 animate-fade-in" style="animation-delay: 0.2s">
+                    <div class="text-center mb-6">
+                        <div class="w-16 h-16 gradient-bg rounded-full mx-auto flex items-center justify-center mb-4">
+                            <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                            </svg>
+                        </div>
+                        <h3 class="text-xl font-semibold mb-2">Depósito Manual</h3>
+                        <p class="text-gray-600">Insira o valor manualmente</p>
+                    </div>
+
+                    <form id="manualDepositForm" class="space-y-4">
+                        <div>
+                            <label for="manualAmount" class="block text-sm font-medium text-gray-700">
+                                Valor do depósito (R$)
+                            </label>
+                            <input type="number" id="manualAmount" min="1" step="0.01" required
+                                class="input-focus mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-black focus:border-black sm:text-sm"
+                                placeholder="0.00">
+                        </div>
+
+                        <button type="submit"
+                            class="hover-scale w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white gradient-bg hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-black">
+                            Depositar
+                        </button>
+                    </form>
+                </div>
+
+                <!-- QR Code Deposit -->
+                <div class="method-card bg-white rounded-lg shadow-lg p-8 animate-fade-in" style="animation-delay: 0.4s">
+                    <div class="text-center mb-6">
+                        <div class="w-16 h-16 gradient-bg rounded-full mx-auto flex items-center justify-center mb-4">
+                            <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z"></path>
+                            </svg>
+                        </div>
+                        <h3 class="text-xl font-semibold mb-2">Depósito via QR Code</h3>
+                        <p class="text-gray-600">Escaneie o QR Code para depositar</p>
+                    </div>
+
+                    <form id="qrCodeDepositForm" class="space-y-4">
+                        <div>
+                            <label for="qrCodeAmount" class="block text-sm font-medium text-gray-700">
+                                Valor do depósito (R$)
+                            </label>
+                            <input type="number" id="qrCodeAmount" min="1" step="0.01" required
+                                class="input-focus mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-black focus:border-black sm:text-sm"
+                                placeholder="0.00">
+                        </div>
+
+                        <button type="submit"
+                            class="hover-scale w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white gradient-bg hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-black">
+                            Gerar QR Code
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Check authentication
+        function checkAuth() {
+            const currentUser = sessionStorage.getItem('currentUser');
+            if (!currentUser) {
+                window.location.href = 'login.html';
+                return null;
+            }
+            return JSON.parse(currentUser);
+        }
+
+        // Logout function
+        function logout() {
+            sessionStorage.removeItem('currentUser');
+            window.location.href = 'index.html';
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const user = checkAuth();
+            if (!user) return;
+
+            // Display user email
+            document.getElementById('userEmail').textContent = user.email;
+        });
+
+        // Handle manual deposit
+        document.getElementById('manualDepositForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const amount = parseFloat(document.getElementById('manualAmount').value);
+            processDeposit(amount, 'manual');
+        });
+
+        // Handle QR code deposit
+        document.getElementById('qrCodeDepositForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const amount = parseFloat(document.getElementById('qrCodeAmount').value);
+            processDeposit(amount, 'qr-code');
+        });
+
+        function processDeposit(amount, method) {
+            if (isNaN(amount) || amount <= 0) {
+                alert('Por favor, insira um valor válido maior que zero.');
+                return;
+            }
+
+            const user = checkAuth();
+            if (!user) return;
+
+            // Get users from localStorage
+            const users = JSON.parse(localStorage.getItem('users') || '[]');
+            const currentUser = users.find(u => u.id === user.id);
+            
+            if (!currentUser) return;
+
+            // Add deposit to user's history
+            if (!currentUser.deposits) currentUser.deposits = [];
+            const depositId = Date.now().toString();
+            currentUser.deposits.push({
+                id: depositId,
+                originalAmount: amount,
+                doubledAmount: amount * 2,
+                date: new Date().toISOString(),
+                method: method,
+                status: 'Em processamento'
+            });
+
+            // Update user data in localStorage
+            localStorage.setItem('users', JSON.stringify(users));
+            sessionStorage.setItem('currentUser', JSON.stringify(currentUser));
+
+            // Simulate status updates
+            setTimeout(() => {
+                const users = JSON.parse(localStorage.getItem('users') || '[]');
+                const currentUser = users.find(u => u.id === user.id);
+                const deposit = currentUser.deposits.find(d => d.id === depositId);
+                
+                if (deposit) {
+                    deposit.status = 'Confirmado';
+                    localStorage.setItem('users', JSON.stringify(users));
+                    sessionStorage.setItem('currentUser', JSON.stringify(currentUser));
+                }
+            }, 2000);
+
+            setTimeout(() => {
+                const users = JSON.parse(localStorage.getItem('users') || '[]');
+                const currentUser = users.find(u => u.id === user.id);
+                const deposit = currentUser.deposits.find(d => d.id === depositId);
+                
+                if (deposit) {
+                    deposit.status = 'Concluído';
+                    localStorage.setItem('users', JSON.stringify(users));
+                    sessionStorage.setItem('currentUser', JSON.stringify(currentUser));
+                }
+            }, 4000);
+
+            // Redirect to wallet
+            window.location.href = 'wallet.html';
+        }
+    </script>
+</body>
+</html>
