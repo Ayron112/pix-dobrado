@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Carteira - PIX Dobrado</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        .gradient-bg {
+            background: linear-gradient(135deg, #000000 0%, #1a1a1a 100%);
+        }
+        .hover-scale {
+            transition: transform 0.3s ease;
+        }
+        .hover-scale:hover {
+            transform: scale(1.02);
+        }
+        .animate-fade-in {
+            animation: fadeIn 0.8s ease-out;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-slide-in {
+            animation: slideIn 0.5s ease-out;
+        }
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateX(-20px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+        .status-badge {
+            transition: all 0.3s ease;
+        }
+        .transaction-card {
+            transition: all 0.3s ease;
+        }
+        .transaction-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- Navigation -->
+    <nav class="bg-white shadow-lg">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                <div class="flex-shrink-0 flex items-center">
+                    <a href="index.html" class="text-2xl font-extrabold bg-clip-text text-transparent bg-gradient-to-r from-black to-gray-600">PIX Dobrado</a>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <span id="userEmail" class="text-sm text-gray-600"></span>
+                    <button onclick="logout()" class="text-gray-900 hover:text-gray-600 px-3 py-2 rounded-md text-sm font-medium hover-scale">Sair</button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Wallet Dashboard -->
+    <div class="min-h-screen bg-gray-50 py-12">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <!-- Action Buttons -->
+            <div class="flex justify-start space-x-4 mb-6 animate-slide-in">
+                <a href="deposit.html"
+                    class="hover-scale inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-white gradient-bg hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-black shadow-lg">
+                    Fazer Depósito
+                </a>
+                <button onclick="showWithdrawModal()"
+                    class="hover-scale inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-white gradient-bg hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-black shadow-lg">
+                    Realizar Saque
+                </button>
+            </div>
+
+            <!-- Balance Card -->
+            <div class="bg-white overflow-hidden shadow-lg rounded-lg divide-y divide-gray-200 hover-scale animate-fade-in">
+                <div class="px-6 py-5 sm:px-8">
+                    <h3 class="text-lg leading-6 font-medium text-gray-900">
+                        Saldo Total
+                    </h3>
+                    <p class="mt-1 max-w-2xl text-sm text-gray-500">
+                        Valor total após dobrar seus depósitos
+                    </p>
+                </div>
+                <div class="px-6 py-5 sm:p-8">
+                    <div class="text-4xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-black to-gray-600" id="totalBalance">
+                        R$ 0,00
+                    </div>
+                </div>
+            </div>
+
+            <!-- Transaction History -->
+            <div class="mt-8 animate-fade-in" style="animation-delay: 0.2s">
+                <div class="bg-white shadow-lg overflow-hidden sm:rounded-lg">
+                    <div class="px-6 py-5 sm:px-8">
+                        <h3 class="text-lg leading-6 font-medium text-gray-900">
+                            Histórico de Transações
+                        </h3>
+                    </div>
+                    <div class="border-t border-gray-200">
+                        <div id="depositHistory" class="divide-y divide-gray-200">
+                            <!-- Transaction history will be populated here -->
+                        </div>
+                        <div id="noDeposits" class="px-6 py-5 sm:p-8 text-center text-gray-500 hidden">
+                            Nenhuma transação realizada ainda.
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Withdraw Modal -->
+            <div id="withdrawModal" class="fixed inset-0 bg-gray-500 bg-opacity-75 hidden flex items-center justify-center">
+                <div class="bg-white p-8 rounded-lg shadow-xl max-w-md w-full mx-4 hover-scale animate-fade-in">
+                    <h3 class="text-lg font-medium text-gray-900 mb-4">Realizar Saque</h3>
+                    <form id="withdrawForm" class="space-y-4">
+                        <div>
+                            <label for="withdrawAmount" class="block text-sm font-medium text-gray-700">
+                                Valor do saque (R$)
+                            </label>
+                            <input type="number" id="withdrawAmount" name="withdrawAmount" min="1" step="0.01" required
+                                class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-black focus:border-black sm:text-sm"
+                                placeholder="0.00">
+                        </div>
+
+                        <div>
+                            <label for="pixKey" class="block text-sm font-medium text-gray-700">
+                                Chave PIX para recebimento
+                            </label>
+                            <input type="text" id="pixKey" name="pixKey" required
+                                class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-black focus:border-black sm:text-sm"
+                                placeholder="Use sua chave PIX padrão ou insira outra">
+                        </div>
+
+                        <div id="withdrawError" class="hidden">
+                            <p class="text-red-600 text-sm"></p>
+                        </div>
+
+                        <div class="flex justify-end space-x-3">
+                            <button type="button" onclick="hideWithdrawModal()"
+                                class="hover-scale px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-black">
+                                Cancelar
+                            </button>
+                            <button type="submit"
+                                class="hover-scale px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white gradient-bg hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-black">
+                                Confirmar Saque
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Check authentication
+        function checkAuth() {
+            const currentUser = sessionStorage.getItem('currentUser');
+            if (!currentUser) {
+                window.location.href = 'login.html';
+                return null;
+            }
+            return JSON.parse(currentUser);
+        }
+
+        // Logout function
+        function logout() {
+            sessionStorage.removeItem('currentUser');
+            window.location.href = 'index.html';
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const user = checkAuth();
+            if (!user) return;
+
+            // Display user email
+            document.getElementById('userEmail').textContent = user.email;
+
+            // Set default PIX key
+            document.getElementById('pixKey').value = user.defaultPixKey;
+
+            updateWalletDisplay();
+        });
+
+        function updateWalletDisplay() {
+            const user = checkAuth();
+            if (!user) return;
+
+            const users = JSON.parse(localStorage.getItem('users') || '[]');
+            const currentUser = users.find(u => u.id === user.id);
+            
+            if (!currentUser) return;
+
+            const depositHistory = document.getElementById('depositHistory');
+            const noDeposits = document.getElementById('noDeposits');
+            const totalBalance = document.getElementById('totalBalance');
+
+            // Clear existing history
+            depositHistory.innerHTML = '';
+
+            // Calculate total balance
+            const totalDeposits = (currentUser.deposits || []).reduce((sum, deposit) => sum + deposit.doubledAmount, 0);
+            const totalWithdrawals = (currentUser.withdrawals || []).reduce((sum, withdrawal) => sum + withdrawal.amount, 0);
+            const total = totalDeposits - totalWithdrawals;
+
+            totalBalance.textContent = `R$ ${total.toFixed(2)}`;
+
+            if (!currentUser.deposits?.length && !currentUser.withdrawals?.length) {
+                noDeposits.classList.remove('hidden');
+                return;
+            } else {
+                noDeposits.classList.add('hidden');
+            }
+
+            // Combine and sort transactions by date
+            const transactions = [
+                ...(currentUser.deposits || []).map(d => ({
+                    type: 'deposit',
+                    originalAmount: d.originalAmount,
+                    doubledAmount: d.doubledAmount,
+                    method: d.method,
+                    date: d.date,
+                    status: d.status || 'Concluído'
+                })),
+                ...(currentUser.withdrawals || []).map(w => ({
+                    type: 'withdrawal',
+                    amount: w.amount,
+                    pixKey: w.pixKey,
+                    date: w.date,
+                    status: w.status || 'Concluído'
+                }))
+            ].sort((a, b) => new Date(b.date) - new Date(a.date));
+
+            // Display transaction history
+            transactions.forEach((transaction, index) => {
+                const transactionElement = document.createElement('div');
+                transactionElement.className = 'transaction-card px-6 py-4 sm:px-8 bg-white';
+                transactionElement.style.animationDelay = `${index * 0.1}s`;
+
+                if (transaction.type === 'deposit') {
+                    const methodLabel = transaction.method === 'qr-code' ? 'via QR Code' : 'via Manual';
+                    transactionElement.innerHTML = `
+                        <div class="flex items-center justify-between">
+                            <div class="text-sm font-medium text-gray-900">
+                                Depósito ${methodLabel}: R$ ${transaction.originalAmount.toFixed(2)}
+                            </div>
+                            <div class="text-sm text-gray-500">
+                                ${new Date(transaction.date).toLocaleDateString('pt-BR')} às ${new Date(transaction.date).toLocaleTimeString('pt-BR')}
+                            </div>
+                        </div>
+                        <div class="mt-2 sm:flex sm:justify-between">
+                            <div class="text-sm text-gray-500">
+                                Valor dobrado: R$ ${transaction.doubledAmount.toFixed(2)}
+                            </div>
+                            <div class="status-badge text-sm ${transaction.status === 'Concluído' ? 'text-green-600' : transaction.status === 'Confirmado' ? 'text-blue-600' : 'text-yellow-600'}">
+                                Status: ${transaction.status}
+                            </div>
+                        </div>
+                    `;
+                } else {
+                    transactionElement.innerHTML = `
+                        <div class="flex items-center justify-between">
+                            <div class="text-sm font-medium text-red-600">
+                                Saque: R$ ${transaction.amount.toFixed(2)}
+                            </div>
+                            <div class="text-sm text-gray-500">
+                                ${new Date(transaction.date).toLocaleDateString('pt-BR')} às ${new Date(transaction.date).toLocaleTimeString('pt-BR')}
+                            </div>
+                        </div>
+                        <div class="mt-2 sm:flex sm:justify-between">
+                            <div class="text-sm text-gray-500">
+                                Chave PIX: ${transaction.pixKey}
+                            </div>
+                            <div class="status-badge text-sm ${transaction.status === 'Concluído' ? 'text-green-600' : transaction.status === 'Confirmado' ? 'text-blue-600' : 'text-yellow-600'}">
+                                Status: ${transaction.status}
+                            </div>
+                        </div>
+                    `;
+                }
+                depositHistory.appendChild(transactionElement);
+            });
+        }
+
+        function showWithdrawModal() {
+            document.getElementById('withdrawModal').classList.remove('hidden');
+        }
+
+        function hideWithdrawModal() {
+            document.getElementById('withdrawModal').classList.add('hidden');
+            document.getElementById('withdrawAmount').value = '';
+            document.getElementById('withdrawError').classList.add('hidden');
+        }
+
+        document.getElementById('withdrawForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const user = checkAuth();
+            if (!user) return;
+
+            const withdrawAmount = parseFloat(document.getElementById('withdrawAmount').value);
+            const pixKey = document.getElementById('pixKey').value;
+            const errorDiv = document.getElementById('withdrawError');
+            const errorMessage = errorDiv.querySelector('p');
+
+            // Get current user's data
+            const users = JSON.parse(localStorage.getItem('users') || '[]');
+            const currentUser = users.find(u => u.id === user.id);
+            
+            if (!currentUser) return;
+
+            // Calculate current balance
+            const totalDeposits = (currentUser.deposits || []).reduce((sum, deposit) => sum + deposit.doubledAmount, 0);
+            const totalWithdrawals = (currentUser.withdrawals || []).reduce((sum, withdrawal) => sum + withdrawal.amount, 0);
+            const currentBalance = totalDeposits - totalWithdrawals;
+
+            if (isNaN(withdrawAmount) || withdrawAmount <= 0) {
+                errorDiv.classList.remove('hidden');
+                errorMessage.textContent = 'Por favor, insira um valor válido maior que zero.';
+                return;
+            }
+
+            if (!pixKey.trim()) {
+                errorDiv.classList.remove('hidden');
+                errorMessage.textContent = 'Por favor, insira uma chave PIX válida.';
+                return;
+            }
+
+            if (withdrawAmount > currentBalance) {
+                errorDiv.classList.remove('hidden');
+                errorMessage.textContent = 'Saldo insuficiente para realizar o saque.';
+                return;
+            }
+
+            // Add withdrawal to user's history
+            if (!currentUser.withdrawals) currentUser.withdrawals = [];
+            const withdrawalId = Date.now().toString();
+            currentUser.withdrawals.push({
+                id: withdrawalId,
+                amount: withdrawAmount,
+                pixKey: pixKey,
+                date: new Date().toISOString(),
+                status: 'Em processamento'
+            });
+
+            // Update user data in localStorage
+            localStorage.setItem('users', JSON.stringify(users));
+            sessionStorage.setItem('currentUser', JSON.stringify(currentUser));
+
+            // Update display and close modal
+            updateWalletDisplay();
+            hideWithdrawModal();
+
+            // Simulate status updates
+            setTimeout(() => {
+                const users = JSON.parse(localStorage.getItem('users') || '[]');
+                const currentUser = users.find(u => u.id === user.id);
+                const withdrawal = currentUser.withdrawals.find(w => w.id === withdrawalId);
+                
+                if (withdrawal) {
+                    withdrawal.status = 'Confirmado';
+                    localStorage.setItem('users', JSON.stringify(users));
+                    sessionStorage.setItem('currentUser', JSON.stringify(currentUser));
+                    updateWalletDisplay();
+                }
+            }, 3000);
+
+            setTimeout(() => {
+                const users = JSON.parse(localStorage.getItem('users') || '[]');
+                const currentUser = users.find(u => u.id === user.id);
+                const withdrawal = currentUser.withdrawals.find(w => w.id === withdrawalId);
+                
+                if (withdrawal) {
+                    withdrawal.status = 'Concluído';
+                    localStorage.setItem('users', JSON.stringify(users));
+                    sessionStorage.setItem('currentUser', JSON.stringify(currentUser));
+                    updateWalletDisplay();
+                }
+            }, 6000);
+        });
+    </script>
+</body>
+</html>
