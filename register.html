@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Criar Conta - PIX Dobrado</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        .gradient-bg {
+            background: linear-gradient(135deg, #000000 0%, #1a1a1a 100%);
+        }
+        .hover-scale {
+            transition: transform 0.3s ease;
+        }
+        .hover-scale:hover {
+            transform: scale(1.02);
+        }
+        .animate-fade-in {
+            animation: fadeIn 0.8s ease-out;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .input-focus {
+            transition: all 0.3s ease;
+        }
+        .input-focus:focus {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <div class="min-h-screen flex flex-col justify-center py-12 sm:px-6 lg:px-8 animate-fade-in">
+        <div class="sm:mx-auto sm:w-full sm:max-w-md">
+            <h2 class="text-center text-3xl font-extrabold">
+                <span class="bg-clip-text text-transparent bg-gradient-to-r from-black via-gray-600 to-black">PIX Dobrado</span>
+            </h2>
+            <p class="mt-2 text-center text-sm text-gray-600">
+                Crie sua conta
+            </p>
+        </div>
+
+        <div class="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
+            <div class="bg-white py-8 px-4 shadow-lg sm:rounded-lg sm:px-10 hover-scale">
+                <form id="registerForm" class="space-y-6">
+                    <div>
+                        <label for="registerName" class="block text-sm font-medium text-gray-700">
+                            Nome completo
+                        </label>
+                        <div class="mt-1">
+                            <input id="registerName" name="registerName" type="text" required
+                                class="input-focus appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-black focus:border-black sm:text-sm"
+                                placeholder="João Silva">
+                        </div>
+                    </div>
+
+                    <div>
+                        <label for="registerEmail" class="block text-sm font-medium text-gray-700">
+                            Email
+                        </label>
+                        <div class="mt-1">
+                            <input id="registerEmail" name="registerEmail" type="email" required
+                                class="input-focus appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-black focus:border-black sm:text-sm"
+                                placeholder="seu@email.com">
+                        </div>
+                    </div>
+
+                    <div>
+                        <label for="registerPassword" class="block text-sm font-medium text-gray-700">
+                            Senha
+                        </label>
+                        <div class="mt-1">
+                            <input id="registerPassword" name="registerPassword" type="password" required
+                                class="input-focus appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-black focus:border-black sm:text-sm"
+                                placeholder="••••••••">
+                        </div>
+                    </div>
+
+                    <div>
+                        <label for="defaultPixKey" class="block text-sm font-medium text-gray-700">
+                            Chave PIX padrão
+                        </label>
+                        <div class="mt-1">
+                            <input id="defaultPixKey" name="defaultPixKey" type="text" required
+                                class="input-focus appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-black focus:border-black sm:text-sm"
+                                placeholder="CPF, email, telefone ou chave aleatória">
+                        </div>
+                    </div>
+
+                    <div>
+                        <button type="submit"
+                            class="hover-scale w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white gradient-bg hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-black">
+                            Criar conta
+                        </button>
+                    </div>
+                </form>
+
+                <div class="mt-6">
+                    <div class="relative">
+                        <div class="absolute inset-0 flex items-center">
+                            <div class="w-full border-t border-gray-300"></div>
+                        </div>
+                        <div class="relative flex justify-center text-sm">
+                            <span class="px-2 bg-white text-gray-500">
+                                Já tem uma conta?
+                            </span>
+                        </div>
+                    </div>
+
+                    <div class="mt-6">
+                        <a href="login.html"
+                            class="hover-scale w-full flex justify-center py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-black">
+                            Fazer login
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Check if user is already logged in
+        window.addEventListener('load', function() {
+            const currentUser = sessionStorage.getItem('currentUser');
+            if (currentUser) {
+                window.location.href = 'wallet.html';
+            }
+        });
+
+        // Handle register form submission
+        document.getElementById('registerForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const name = document.getElementById('registerName').value;
+            const email = document.getElementById('registerEmail').value;
+            const password = document.getElementById('registerPassword').value;
+            const defaultPixKey = document.getElementById('defaultPixKey').value;
+
+            // Get existing users
+            const users = JSON.parse(localStorage.getItem('users') || '[]');
+
+            // Check if email already exists
+            if (users.some(u => u.email === email)) {
+                alert('Este email já está cadastrado');
+                return;
+            }
+
+            // Add new user
+            const newUser = {
+                id: Date.now().toString(),
+                name,
+                email,
+                password,
+                defaultPixKey,
+                deposits: [],
+                withdrawals: []
+            };
+
+            users.push(newUser);
+            localStorage.setItem('users', JSON.stringify(users));
+
+            // Log user in
+            sessionStorage.setItem('currentUser', JSON.stringify(newUser));
+            window.location.href = 'wallet.html';
+        });
+    </script>
+</body>
+</html>
