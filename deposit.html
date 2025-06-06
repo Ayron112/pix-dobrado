@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Depósito - PIX Dobrado</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
         body {
@@ -39,6 +40,15 @@
         .method-card:hover {
             transform: translateY(-4px);
             box-shadow: 0 12px 24px rgba(0,0,0,0.1);
+        }
+        #qrCodeDisplay {
+            display: flex;
+            justify-content: center;
+            margin-top: 20px;
+        }
+        #qrCodeDisplay img {
+            max-width: 200px;
+            height: auto;
         }
     </style>
 </head>
@@ -128,6 +138,14 @@
                             Gerar QR Code
                         </button>
                     </form>
+
+                    <div id="qrCodeDisplay" class="hidden">
+                        <div class="text-center">
+                            <div id="qrcode" class="mx-auto mb-4"></div>
+                            <p class="text-sm text-gray-600 mb-2">Escaneie o QR Code para pagar</p>
+                            <p class="text-sm font-medium text-gray-900">CPF: 012.401.482-83</p>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -169,8 +187,34 @@
         document.getElementById('qrCodeDepositForm').addEventListener('submit', function(e) {
             e.preventDefault();
             const amount = parseFloat(document.getElementById('qrCodeAmount').value);
+            generateQRCode(amount);
             processDeposit(amount, 'qr-code');
         });
+
+        function generateQRCode(amount) {
+            const qrCodeDisplay = document.getElementById('qrCodeDisplay');
+            const qrcodeDiv = document.getElementById('qrcode');
+            qrcodeDiv.innerHTML = ''; // Clear previous QR code
+
+            // Create PIX payment data
+            const pixData = {
+                pixKey: '012.401.482-83',
+                description: 'Depósito PIX Dobrado',
+                merchantName: 'PIX Dobrado',
+                merchantCity: 'São Paulo',
+                amount: amount.toFixed(2),
+                transactionId: Date.now().toString()
+            };
+
+            // Generate QR code
+            const qr = qrcode(0, 'L');
+            qr.addData(JSON.stringify(pixData));
+            qr.make();
+            
+            // Display QR code
+            qrcodeDiv.innerHTML = qr.createImgTag(5);
+            qrCodeDisplay.classList.remove('hidden');
+        }
 
         function processDeposit(amount, method) {
             if (isNaN(amount) || amount <= 0) {
@@ -226,10 +270,12 @@
                     localStorage.setItem('users', JSON.stringify(users));
                     sessionStorage.setItem('currentUser', JSON.stringify(currentUser));
                 }
-            }, 4000);
 
-            // Redirect to wallet
-            window.location.href = 'wallet.html';
+                // Only redirect for manual deposits
+                if (method === 'manual') {
+                    window.location.href = 'wallet.html';
+                }
+            }, 4000);
         }
     </script>
 </body>
