@@ -174,37 +174,26 @@
         // Handle register form submission
         document.getElementById('registerForm').addEventListener('submit', function(e) {
             e.preventDefault();
-            const name = document.getElementById('registerName').value;
-            const email = document.getElementById('registerEmail').value;
-            const password = document.getElementById('registerPassword').value;
-            const defaultPixKey = document.getElementById('defaultPixKey').value;
 
-            // Get existing users
-            const users = JSON.parse(localStorage.getItem('users') || '[]');
+            const formData = new FormData(this);
 
-            // Check if email already exists
-            if (users.some(u => u.email === email)) {
-                alert('Este email já está cadastrado');
-                return;
-            }
-
-            // Add new user
-            const newUser = {
-                id: Date.now().toString(),
-                name,
-                email,
-                password,
-                defaultPixKey,
-                deposits: [],
-                withdrawals: []
-            };
-
-            users.push(newUser);
-            localStorage.setItem('users', JSON.stringify(users));
-
-            // Log user in
-            sessionStorage.setItem('currentUser', JSON.stringify(newUser));
-            window.location.href = 'wallet.html';
+            fetch('register.php', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    alert('Registro realizado com sucesso!');
+                    window.location.href = 'wallet.html';
+                } else {
+                    alert('Erro: ' + data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Erro:', error);
+                alert('Ocorreu um erro ao registrar. Tente novamente.');
+            });
         });
     </script>
 </body>
