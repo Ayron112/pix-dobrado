@@ -114,20 +114,27 @@
         // Handle login form submission
         document.getElementById('loginForm').addEventListener('submit', function(e) {
             e.preventDefault();
-            const email = document.getElementById('email').value;
-            const password = document.getElementById('password').value;
+            
+            const formData = new FormData(this);
 
-            // Get users from localStorage
-            const users = JSON.parse(localStorage.getItem('users') || '[]');
-            const user = users.find(u => u.email === email && u.password === password);
-
-            if (user) {
-                // Store current user in session
-                sessionStorage.setItem('currentUser', JSON.stringify(user));
-                window.location.href = 'wallet.html';
-            } else {
-                alert('Email ou senha incorretos');
-            }
+            fetch('login.php', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    // Store user data in session
+                    sessionStorage.setItem('currentUser', JSON.stringify(data.user));
+                    window.location.href = 'wallet.html';
+                } else {
+                    alert('Erro: ' + data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Erro:', error);
+                alert('Ocorreu um erro ao fazer login. Tente novamente.');
+            });
         });
     </script>
 </body>
