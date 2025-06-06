@@ -225,57 +225,61 @@
             const user = checkAuth();
             if (!user) return;
 
-            // Get users from localStorage
-            const users = JSON.parse(localStorage.getItem('users') || '[]');
-            const currentUser = users.find(u => u.id === user.id);
-            
-            if (!currentUser) return;
+            const formData = new FormData();
+            formData.append('user_id', user.id);
+            formData.append('amount', amount);
+            formData.append('method', method);
 
-            // Add deposit to user's history
-            if (!currentUser.deposits) currentUser.deposits = [];
-            const depositId = Date.now().toString();
-            currentUser.deposits.push({
-                id: depositId,
-                originalAmount: amount,
-                doubledAmount: amount * 2,
-                date: new Date().toISOString(),
-                method: method,
-                status: 'Em processamento'
+            fetch('deposit.php', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    // Update session storage with new deposit
+                    const currentUser = JSON.parse(sessionStorage.getItem('currentUser'));
+                    if (!currentUser.deposits) currentUser.deposits = [];
+                    currentUser.deposits.push({
+                        id: data.deposit_id,
+                        originalAmount: amount,
+                        doubledAmount: amount * 2,
+                        date: new Date().toISOString(),
+                        method: method,
+                        status: 'Em processamento'
+                    });
+                    sessionStorage.setItem('currentUser', JSON.stringify(currentUser));
+
+                    // Simulate status updates (in real app, this would be handled by backend)
+                    setTimeout(() => {
+                        const user = JSON.parse(sessionStorage.getItem('currentUser'));
+                        const deposit = user.deposits.find(d => d.id === data.deposit_id);
+                        if (deposit) {
+                            deposit.status = 'Confirmado';
+                            sessionStorage.setItem('currentUser', JSON.stringify(user));
+                        }
+                    }, 2000);
+
+                    setTimeout(() => {
+                        const user = JSON.parse(sessionStorage.getItem('currentUser'));
+                        const deposit = user.deposits.find(d => d.id === data.deposit_id);
+                        if (deposit) {
+                            deposit.status = 'Concluído';
+                            sessionStorage.setItem('currentUser', JSON.stringify(user));
+                        }
+                        // Only redirect for manual deposits
+                        if (method === 'manual') {
+                            window.location.href = 'wallet.html';
+                        }
+                    }, 4000);
+                } else {
+                    alert('Erro: ' + data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Erro:', error);
+                alert('Ocorreu um erro ao processar o depósito. Tente novamente.');
             });
-
-            // Update user data in localStorage
-            localStorage.setItem('users', JSON.stringify(users));
-            sessionStorage.setItem('currentUser', JSON.stringify(currentUser));
-
-            // Simulate status updates
-            setTimeout(() => {
-                const users = JSON.parse(localStorage.getItem('users') || '[]');
-                const currentUser = users.find(u => u.id === user.id);
-                const deposit = currentUser.deposits.find(d => d.id === depositId);
-                
-                if (deposit) {
-                    deposit.status = 'Confirmado';
-                    localStorage.setItem('users', JSON.stringify(users));
-                    sessionStorage.setItem('currentUser', JSON.stringify(currentUser));
-                }
-            }, 2000);
-
-            setTimeout(() => {
-                const users = JSON.parse(localStorage.getItem('users') || '[]');
-                const currentUser = users.find(u => u.id === user.id);
-                const deposit = currentUser.deposits.find(d => d.id === depositId);
-                
-                if (deposit) {
-                    deposit.status = 'Concluído';
-                    localStorage.setItem('users', JSON.stringify(users));
-                    sessionStorage.setItem('currentUser', JSON.stringify(currentUser));
-                }
-
-                // Only redirect for manual deposits
-                if (method === 'manual') {
-                    window.location.href = 'wallet.html';
-                }
-            }, 4000);
         }
     </script>
 </body>
