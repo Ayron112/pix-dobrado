@@ -54,7 +54,7 @@
                             Nome completo
                         </label>
                         <div class="mt-1">
-                            <input id="registerName" name="registerName" type="text" required
+                            <input id="registerName" name="name" type="text" required
                                 class="input-focus appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-black focus:border-black sm:text-sm"
                                 placeholder="João Silva">
                         </div>
@@ -65,7 +65,7 @@
                             CEP
                         </label>
                         <div class="mt-1">
-                            <input id="registerCEP" name="registerCEP" type="text" required
+                            <input id="registerCEP" name="cep" type="text" required
                                 class="input-focus appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-black focus:border-black sm:text-sm"
                                 placeholder="00000-000">
                         </div>
@@ -76,7 +76,7 @@
                             CPF
                         </label>
                         <div class="mt-1">
-                            <input id="registerCPF" name="registerCPF" type="text" required
+                            <input id="registerCPF" name="cpf" type="text" required
                                 class="input-focus appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-black focus:border-black sm:text-sm"
                                 placeholder="000.000.000-00">
                         </div>
@@ -87,7 +87,7 @@
                             Endereço
                         </label>
                         <div class="mt-1">
-                            <input id="registerAddress" name="registerAddress" type="text" required
+                            <input id="registerAddress" name="address" type="text" required
                                 class="input-focus appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-black focus:border-black sm:text-sm"
                                 placeholder="Rua, número, bairro">
                         </div>
@@ -98,7 +98,7 @@
                             Data de Nascimento
                         </label>
                         <div class="mt-1">
-                            <input id="registerBirthdate" name="registerBirthdate" type="date" required
+                            <input id="registerBirthdate" name="birthdate" type="date" required
                                 class="input-focus appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-black focus:border-black sm:text-sm">
                         </div>
                     </div>
@@ -108,7 +108,7 @@
                             Celular
                         </label>
                         <div class="mt-1">
-                            <input id="registerCell" name="registerCell" type="tel" required
+                            <input id="registerCell" name="cell" type="tel" required
                                 class="input-focus appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-black focus:border-black sm:text-sm"
                                 placeholder="(00) 00000-0000">
                         </div>
@@ -119,7 +119,7 @@
                             Email
                         </label>
                         <div class="mt-1">
-                            <input id="registerEmail" name="registerEmail" type="email" required
+                            <input id="registerEmail" name="email" type="email" required
                                 class="input-focus appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-black focus:border-black sm:text-sm"
                                 placeholder="seu@email.com">
                         </div>
@@ -130,7 +130,7 @@
                             Senha
                         </label>
                         <div class="mt-1">
-                            <input id="registerPassword" name="registerPassword" type="password" required
+                            <input id="registerPassword" name="password" type="password" required
                                 class="input-focus appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-black focus:border-black sm:text-sm"
                                 placeholder="••••••••">
                         </div>
@@ -198,7 +198,16 @@
         document.getElementById('registerForm').addEventListener('submit', function(e) {
             e.preventDefault();
 
-            const formData = new FormData(this);
+            const formData = new FormData();
+            formData.append('name', document.getElementById('registerName').value);
+            formData.append('cep', document.getElementById('registerCEP').value);
+            formData.append('cpf', document.getElementById('registerCPF').value);
+            formData.append('address', document.getElementById('registerAddress').value);
+            formData.append('birthdate', document.getElementById('registerBirthdate').value);
+            formData.append('cell', document.getElementById('registerCell').value);
+            formData.append('email', document.getElementById('registerEmail').value);
+            formData.append('password', document.getElementById('registerPassword').value);
+            formData.append('defaultPixKey', document.getElementById('defaultPixKey').value);
 
             fetch('register.php', {
                 method: 'POST',
