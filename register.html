@@ -129,10 +129,33 @@
                         <label for="registerPassword" class="block text-sm font-medium text-gray-700">
                             Senha
                         </label>
-                        <div class="mt-1">
+                        <div class="mt-1 relative">
                             <input id="registerPassword" name="password" type="password" required
-                                class="input-focus appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-black focus:border-black sm:text-sm"
+                                class="input-focus appearance-none block w-full pr-10 px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-black focus:border-black sm:text-sm"
                                 placeholder="••••••••">
+                            <button type="button" id="togglePassword" class="absolute inset-y-0 right-0 pr-3 flex items-center text-sm leading-5">
+                                <svg id="eyeIcon" class="h-5 w-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.477 0 8.268 2.943 9.542 7-1.274 4.057-5.065 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label for="registerConfirmPassword" class="block text-sm font-medium text-gray-700">
+                            Confirmar Senha
+                        </label>
+                        <div class="mt-1 relative">
+                            <input id="registerConfirmPassword" name="confirmPassword" type="password" required
+                                class="input-focus appearance-none block w-full pr-10 px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-black focus:border-black sm:text-sm"
+                                placeholder="••••••••">
+                            <button type="button" id="toggleConfirmPassword" class="absolute inset-y-0 right-0 pr-3 flex items-center text-sm leading-5">
+                                <svg id="eyeIconConfirm" class="h-5 w-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.477 0 8.268 2.943 9.542 7-1.274 4.057-5.065 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                                </svg>
+                            </button>
                         </div>
                     </div>
 
@@ -185,7 +208,7 @@
         </div>
     </div>
 
-    <script>
+            <script>
         // Check if user is already logged in
         window.addEventListener('load', function() {
             const currentUser = sessionStorage.getItem('currentUser');
@@ -194,9 +217,42 @@
             }
         });
 
+        // Toggle password visibility
+        document.getElementById('togglePassword').addEventListener('click', function() {
+            const passwordInput = document.getElementById('registerPassword');
+            const eyeIcon = document.getElementById('eyeIcon');
+            if (passwordInput.type === 'password') {
+                passwordInput.type = 'text';
+                eyeIcon.classList.add('text-black');
+            } else {
+                passwordInput.type = 'password';
+                eyeIcon.classList.remove('text-black');
+            }
+        });
+
+        document.getElementById('toggleConfirmPassword').addEventListener('click', function() {
+            const confirmPasswordInput = document.getElementById('registerConfirmPassword');
+            const eyeIconConfirm = document.getElementById('eyeIconConfirm');
+            if (confirmPasswordInput.type === 'password') {
+                confirmPasswordInput.type = 'text';
+                eyeIconConfirm.classList.add('text-black');
+            } else {
+                confirmPasswordInput.type = 'password';
+                eyeIconConfirm.classList.remove('text-black');
+            }
+        });
+
         // Handle register form submission
         document.getElementById('registerForm').addEventListener('submit', function(e) {
             e.preventDefault();
+
+            // Validate password and confirm password match
+            const password = document.getElementById('registerPassword').value;
+            const confirmPassword = document.getElementById('registerConfirmPassword').value;
+            if (password !== confirmPassword) {
+                alert('As senhas não coincidem. Por favor, tente novamente.');
+                return;
+            }
 
             const formData = new FormData();
             formData.append('name', document.getElementById('registerName').value);
@@ -206,7 +262,7 @@
             formData.append('birthdate', document.getElementById('registerBirthdate').value);
             formData.append('cell', document.getElementById('registerCell').value);
             formData.append('email', document.getElementById('registerEmail').value);
-            formData.append('password', document.getElementById('registerPassword').value);
+            formData.append('password', password);
             formData.append('defaultPixKey', document.getElementById('defaultPixKey').value);
 
             fetch('register.php', {
