@@ -11,19 +11,12 @@ $data = $_POST;
 // Debug: Log received data
 error_log("Received POST data: " . print_r($data, true));
 
-// Validate required fields including confirmPassword
-$required = ['name', 'cep', 'cpf', 'address', 'birthdate', 'cell', 'email', 'password', 'confirmPassword', 'defaultPixKey'];
+$required = ['name', 'cep', 'cpf', 'address', 'birthdate', 'cell', 'email', 'password', 'defaultPixKey'];
 foreach ($required as $field) {
     if (empty($data[$field])) {
         echo json_encode(['status' => 'error', 'message' => "Field {$field} is required."]);
         exit;
     }
-}
-
-// Validate password and confirmPassword match
-if ($data['password'] !== $data['confirmPassword']) {
-    echo json_encode(['status' => 'error', 'message' => 'Passwords do not match.']);
-    exit;
 }
 
 try {
